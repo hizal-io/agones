@@ -42,8 +42,8 @@ const (
 
 // AggregatedPlayerStatus stores total player tracking values
 type AggregatedPlayerStatus struct {
-	Count    int64 `json:"count"`
-	Capacity int64 `json:"capacity"`
+	Count    int64 `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64 `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
 }
 
 // AggregatedCounterStatus stores total Counter tracking values
