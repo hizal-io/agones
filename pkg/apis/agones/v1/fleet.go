@@ -37,10 +37,10 @@ const (
 // Fleet is the data structure for a Fleet resource
 type Fleet struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Spec   FleetSpec   `json:"spec"`
-	Status FleetStatus `json:"status"`
+	Spec   FleetSpec   `json:"spec" protobuf:"bytes,2,opt,name=spec"`
+	Status FleetStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -48,39 +48,39 @@ type Fleet struct {
 // FleetList is a list of Fleet resources
 type FleetList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Items []Fleet `json:"items"`
+	Items []Fleet `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
 // FleetSpec is the spec for a Fleet
 type FleetSpec struct {
 	// Replicas are the number of GameServers that should be in this set. Defaults to 0.
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" protobuf:"varint,1,opt,name=replicas"`
 	// Deployment strategy
-	Strategy appsv1.DeploymentStrategy `json:"strategy"`
+	Strategy appsv1.DeploymentStrategy `json:"strategy" protobuf:"bytes,2,opt,name=strategy"`
 	// Scheduling strategy. Defaults to "Packed".
-	Scheduling apis.SchedulingStrategy `json:"scheduling"`
+	Scheduling apis.SchedulingStrategy `json:"scheduling" protobuf:"bytes,3,opt,name=scheduling,casttype=agones.dev/agones/pkg/apis.SchedulingStrategy"`
 	// Template the GameServer template to apply for this Fleet
-	Template GameServerTemplateSpec `json:"template"`
+	Template GameServerTemplateSpec `json:"template" protobuf:"bytes,4,opt,name=template"`
 }
 
 // FleetStatus is the status of a Fleet
 type FleetStatus struct {
 	// Replicas the total number of current GameServer replicas
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" protobuf:"varint,1,opt,name=replicas"`
 	// ReadyReplicas are the number of Ready GameServer replicas
-	ReadyReplicas int32 `json:"readyReplicas"`
+	ReadyReplicas int32 `json:"readyReplicas" protobuf:"varint,2,opt,name=readyReplicas"`
 	// ReservedReplicas are the total number of Reserved GameServer replicas in this fleet.
 	// Reserved instances won't be deleted on scale down, but won't cause an autoscaler to scale up.
-	ReservedReplicas int32 `json:"reservedReplicas"`
+	ReservedReplicas int32 `json:"reservedReplicas" protobuf:"varint,3,opt,name=reservedReplicas"`
 	// AllocatedReplicas are the number of Allocated GameServer replicas
-	AllocatedReplicas int32 `json:"allocatedReplicas"`
+	AllocatedReplicas int32 `json:"allocatedReplicas" protobuf:"varint,4,opt,name=allocatedReplicas"`
 	// [Stage:Alpha]
 	// [FeatureFlag:PlayerTracking]
 	// Players are the current total player capacity and count for this Fleet
 	// +optional
-	Players *AggregatedPlayerStatus `json:"players,omitempty"`
+	Players *AggregatedPlayerStatus `json:"players,omitempty" protobuf:"bytes,5,opt,name=players"`
 }
 
 // GameServerSet returns a single GameServerSet for this Fleet definition
