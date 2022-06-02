@@ -42,20 +42,20 @@ const (
 
 // AggregatedPlayerStatus stores total player tracking values
 type AggregatedPlayerStatus struct {
-	Count    int64 `json:"count"`
-	Capacity int64 `json:"capacity"`
+	Count    int64 `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64 `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
 }
 
 // AggregatedCounterStatus stores total Counter tracking values
 type AggregatedCounterStatus struct {
-	Count    int64 `json:"count"`
-	Capacity int64 `json:"capacity"`
+	Count    int64 `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64 `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
 }
 
 // AggregatedListStatus stores total List tracking values
 type AggregatedListStatus struct {
-	Count    int64 `json:"count"`
-	Capacity int64 `json:"capacity"`
+	Count    int64 `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64 `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
 }
 
 // crd is an interface to get Name and Kind of CRD
@@ -131,10 +131,10 @@ func validateObjectMeta(objMeta *metav1.ObjectMeta) []metav1.StatusCause {
 type AllocationOverflow struct {
 	// Labels to be applied to the `GameServer`
 	// +optional
-	Labels map[string]string `json:"labels,omitempty"`
+	Labels map[string]string `json:"labels,omitempty" protobuf:"bytes,1,rep,name=labels"`
 	// Annotations to be applied to the `GameServer`
 	// +optional
-	Annotations map[string]string `json:"annotations,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty" protobuf:"bytes,2,rep,name=annotations"`
 }
 
 // Validate validates the label and annotation values

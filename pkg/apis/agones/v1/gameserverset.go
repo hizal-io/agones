@@ -37,10 +37,10 @@ const (
 // Deployments and ReplicaSets
 type GameServerSet struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Spec   GameServerSetSpec   `json:"spec"`
-	Status GameServerSetStatus `json:"status"`
+	Spec   GameServerSetSpec   `json:"spec" protobuf:"bytes,2,opt,name=spec"`
+	Status GameServerSetStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -48,52 +48,52 @@ type GameServerSet struct {
 // GameServerSetList is a list of GameServerSet resources
 type GameServerSetList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Items []GameServerSet `json:"items"`
+	Items []GameServerSet `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
 // GameServerSetSpec the specification for GameServerSet
 type GameServerSetSpec struct {
 	// Replicas are the number of GameServers that should be in this set
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" protobuf:"varint,1,opt,name=replicas"`
 	// [Stage: Alpha]
 	// [FeatureFlag:FleetAllocationOverflow]
 	// Labels and Annotations to apply to GameServers when the number of Allocated GameServers drops below
 	// the desired replicas on the underlying `GameServerSet`
 	// +optional
-	AllocationOverflow *AllocationOverflow `json:"allocationOverflow,omitempty"`
+	AllocationOverflow *AllocationOverflow `json:"allocationOverflow,omitempty" protobuf:"bytes,4,opt,name=allocationOverflow"`
 	// Scheduling strategy. Defaults to "Packed".
-	Scheduling apis.SchedulingStrategy `json:"scheduling,omitempty"`
+	Scheduling apis.SchedulingStrategy `json:"scheduling,omitempty" protobuf:"bytes,2,opt,name=scheduling,casttype=agones.dev/agones/pkg/apis.SchedulingStrategy"`
 	// Template the GameServer template to apply for this GameServerSet
-	Template GameServerTemplateSpec `json:"template"`
+	Template GameServerTemplateSpec `json:"template" protobuf:"bytes,3,opt,name=template"`
 }
 
 // GameServerSetStatus is the status of a GameServerSet
 type GameServerSetStatus struct {
 	// Replicas is the total number of current GameServer replicas
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" protobuf:"varint,1,opt,name=replicas"`
 	// ReadyReplicas is the number of Ready GameServer replicas
-	ReadyReplicas int32 `json:"readyReplicas"`
+	ReadyReplicas int32 `json:"readyReplicas" protobuf:"varint,2,opt,name=readyReplicas"`
 	// ReservedReplicas is the number of Reserved GameServer replicas
-	ReservedReplicas int32 `json:"reservedReplicas"`
+	ReservedReplicas int32 `json:"reservedReplicas" protobuf:"varint,3,opt,name=reservedReplicas"`
 	// AllocatedReplicas is the number of Allocated GameServer replicas
-	AllocatedReplicas int32 `json:"allocatedReplicas"`
+	AllocatedReplicas int32 `json:"allocatedReplicas" protobuf:"varint,4,opt,name=allocatedReplicas"`
 	// ShutdownReplicas is the number of Shutdown GameServers replicas
-	ShutdownReplicas int32 `json:"shutdownReplicas"`
+	ShutdownReplicas int32 `json:"shutdownReplicas" protobuf:"varint,5,opt,name=shutdownReplicas"`
 	// [Stage:Alpha]
 	// [FeatureFlag:PlayerTracking]
 	// Players is the current total player capacity and count for this GameServerSet
 	// +optional
-	Players *AggregatedPlayerStatus `json:"players,omitempty"`
+	Players *AggregatedPlayerStatus `json:"players,omitempty" protobuf:"bytes,6,opt,name=players"`
 	// (Alpha, CountsAndLists feature flag) Counters provides aggregated Counter capacity and Counter
 	// count for this GameServerSet.
 	// +optional
-	Counters map[string]AggregatedCounterStatus `json:"counters,omitempty"`
+	Counters map[string]AggregatedCounterStatus `json:"counters,omitempty" protobuf:"bytes,7,rep,name=counters"`
 	// (Alpha, CountsAndLists feature flag) Lists provides aggregated List capacity and List values
 	// for this GameServerSet.
 	// +optional
-	Lists map[string]AggregatedListStatus `json:"lists,omitempty"`
+	Lists map[string]AggregatedListStatus `json:"lists,omitempty" protobuf:"bytes,8,rep,name=lists"`
 }
 
 // ValidateUpdate validates when updates occur. The argument

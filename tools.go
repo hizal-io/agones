@@ -19,6 +19,7 @@ package agones
 
 /*
 	github.com/ahmetb/gen-crd-api-reference-docs                        site/gen-api-docs.sh
+	github.com/gogo/protobuf/gogoproto   								build/gen-crd-protos.sh
 	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway   build-sdk-images/go/gen.sh
 	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2      build-sdk-images/go/gen.sh
 	golang.org/x/tools/cmd/goimports                                    build-image/Dockerfile
@@ -27,6 +28,7 @@ package agones
 
 import (
 	_ "github.com/ahmetb/gen-crd-api-reference-docs"
+	_ "github.com/gogo/protobuf/gogoproto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "golang.org/x/tools/cmd/goimports"

@@ -167,10 +167,10 @@ var (
 // which is particularly useful for operations such as allocation.
 type GameServer struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Spec   GameServerSpec   `json:"spec"`
-	Status GameServerStatus `json:"status"`
+	Spec   GameServerSpec   `json:"spec" protobuf:"bytes,2,opt,name=spec"`
+	Status GameServerStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -178,48 +178,48 @@ type GameServer struct {
 // GameServerList is a list of GameServer resources
 type GameServerList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Items []GameServer `json:"items"`
+	Items []GameServer `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
 // GameServerTemplateSpec is a template for GameServers
 type GameServerTemplateSpec struct {
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              GameServerSpec `json:"spec"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              GameServerSpec `json:"spec" protobuf:"bytes,2,opt,name=spec"`
 }
 
 // GameServerSpec is the spec for a GameServer resource
 type GameServerSpec struct {
 	// Container specifies which Pod container is the game server. Only required if there is more than one
 	// container defined
-	Container string `json:"container,omitempty"`
+	Container string `json:"container,omitempty" protobuf:"bytes,1,opt,name=container"`
 	// Ports are the array of ports that can be exposed via the game server
-	Ports []GameServerPort `json:"ports,omitempty"`
+	Ports []GameServerPort `json:"ports,omitempty" protobuf:"bytes,2,rep,name=ports"`
 	// Health configures health checking
-	Health Health `json:"health,omitempty"`
+	Health Health `json:"health,omitempty" protobuf:"bytes,3,opt,name=health"`
 	// Scheduling strategy. Defaults to "Packed"
-	Scheduling apis.SchedulingStrategy `json:"scheduling,omitempty"`
+	Scheduling apis.SchedulingStrategy `json:"scheduling,omitempty" protobuf:"bytes,4,opt,name=scheduling,casttype=agones.dev/agones/pkg/apis.SchedulingStrategy"`
 	// SdkServer specifies parameters for the Agones SDK Server sidecar container
-	SdkServer SdkServer `json:"sdkServer,omitempty"`
+	SdkServer SdkServer `json:"sdkServer,omitempty" protobuf:"bytes,5,opt,name=sdkServer"`
 	// Template describes the Pod that will be created for the GameServer
-	Template corev1.PodTemplateSpec `json:"template"`
+	Template corev1.PodTemplateSpec `json:"template" protobuf:"bytes,6,opt,name=template"`
 	// (Alpha, PlayerTracking feature flag) Players provides the configuration for player tracking features.
 	// +optional
-	Players *PlayersSpec `json:"players,omitempty"`
+	Players *PlayersSpec `json:"players,omitempty" protobuf:"bytes,7,opt,name=players"`
 	// (Alpha, CountsAndLists feature flag) Counters and Lists provides the configuration for generic tracking features.
 	// +optional
-	Counters map[string]CounterStatus `json:"counters,omitempty"`
-	Lists    map[string]ListStatus    `json:"lists,omitempty"`
+	Counters map[string]CounterStatus `json:"counters,omitempty" protobuf:"bytes,8,rep,name=counters"`
+	Lists    map[string]ListStatus    `json:"lists,omitempty" protobuf:"bytes,9,rep,name=lists"`
 	// Eviction specifies the eviction tolerance of the GameServer. Defaults to "Never".
 	// +optional
-	Eviction *Eviction `json:"eviction,omitempty"`
+	Eviction *Eviction `json:"eviction,omitempty" protobuf:"bytes,10,opt,name=eviction"`
 	// immutableReplicas is present in gameservers.agones.dev but omitted here (it's always 1).
 }
 
 // PlayersSpec tracks the initial player capacity
 type PlayersSpec struct {
-	InitialCapacity int64 `json:"initialCapacity,omitempty"`
+	InitialCapacity int64 `json:"initialCapacity,omitempty" protobuf:"varint,1,opt,name=initialCapacity"`
 }
 
 // Eviction specifies the eviction tolerance of the GameServer
@@ -228,100 +228,100 @@ type Eviction struct {
 	// - Always: Allow eviction for both Cluster Autoscaler and node drain for upgrades
 	// - OnUpgrade: Allow eviction for upgrades alone
 	// - Never (default): Pod should run to completion
-	Safe EvictionSafe `json:"safe,omitempty"`
+	Safe EvictionSafe `json:"safe,omitempty" protobuf:"bytes,1,opt,name=safe,casttype=EvictionSafe"`
 }
 
 // Health configures health checking on the GameServer
 type Health struct {
 	// Disabled is whether health checking is disabled or not
-	Disabled bool `json:"disabled,omitempty"`
+	Disabled bool `json:"disabled,omitempty" protobuf:"varint,1,opt,name=disabled"`
 	// PeriodSeconds is the number of seconds each health ping has to occur in
-	PeriodSeconds int32 `json:"periodSeconds,omitempty"`
+	PeriodSeconds int32 `json:"periodSeconds,omitempty" protobuf:"varint,2,opt,name=periodSeconds"`
 	// FailureThreshold how many failures in a row constitutes unhealthy
-	FailureThreshold int32 `json:"failureThreshold,omitempty"`
+	FailureThreshold int32 `json:"failureThreshold,omitempty" protobuf:"varint,3,opt,name=failureThreshold"`
 	// InitialDelaySeconds initial delay before checking health
-	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty" protobuf:"varint,4,opt,name=initialDelaySeconds"`
 }
 
 // GameServerPort defines a set of Ports that
 // are to be exposed via the GameServer
 type GameServerPort struct {
 	// Name is the descriptive name of the port
-	Name string `json:"name,omitempty"`
+	Name string `json:"name,omitempty" protobuf:"bytes,1,opt,name=name"`
 	// PortPolicy defines the policy for how the HostPort is populated.
 	// Dynamic port will allocate a HostPort within the selected MIN_PORT and MAX_PORT range passed to the controller
 	// at installation time.
 	// When `Static` portPolicy is specified, `HostPort` is required, to specify the port that game clients will
 	// connect to
-	PortPolicy PortPolicy `json:"portPolicy,omitempty"`
+	PortPolicy PortPolicy `json:"portPolicy,omitempty" protobuf:"bytes,2,opt,name=portPolicy,casttype=PortPolicy"`
 	// Container is the name of the container on which to open the port. Defaults to the game server container.
 	// +optional
-	Container *string `json:"container,omitempty"`
+	Container *string `json:"container,omitempty" protobuf:"bytes,3,opt,name=container"`
 	// ContainerPort is the port that is being opened on the specified container's process
-	ContainerPort int32 `json:"containerPort,omitempty"`
+	ContainerPort int32 `json:"containerPort,omitempty" protobuf:"varint,4,opt,name=containerPort"`
 	// HostPort the port exposed on the host for clients to connect to
-	HostPort int32 `json:"hostPort,omitempty"`
+	HostPort int32 `json:"hostPort,omitempty" protobuf:"varint,5,opt,name=hostPort"`
 	// Protocol is the network protocol being used. Defaults to UDP. TCP and TCPUDP are other options.
-	Protocol corev1.Protocol `json:"protocol,omitempty"`
+	Protocol corev1.Protocol `json:"protocol,omitempty" protobuf:"bytes,6,opt,name=protocol,casttype=k8s.io/api/core/v1.Protocol"`
 }
 
 // SdkServer specifies parameters for the Agones SDK Server sidecar container
 type SdkServer struct {
 	// LogLevel for SDK server (sidecar) logs. Defaults to "Info"
-	LogLevel SdkServerLogLevel `json:"logLevel,omitempty"`
+	LogLevel SdkServerLogLevel `json:"logLevel,omitempty" protobuf:"bytes,1,opt,name=logLevel,casttype=SdkServerLogLevel"`
 	// GRPCPort is the port on which the SDK Server binds the gRPC server to accept incoming connections
-	GRPCPort int32 `json:"grpcPort,omitempty"`
+	GRPCPort int32 `json:"grpcPort,omitempty" protobuf:"varint,2,opt,name=grpcPort"`
 	// HTTPPort is the port on which the SDK Server binds the HTTP gRPC gateway server to accept incoming connections
-	HTTPPort int32 `json:"httpPort,omitempty"`
+	HTTPPort int32 `json:"httpPort,omitempty" protobuf:"varint,3,opt,name=httpPort"`
 }
 
 // GameServerStatus is the status for a GameServer resource
 type GameServerStatus struct {
 	// GameServerState is the current state of a GameServer, e.g. Creating, Starting, Ready, etc
-	State         GameServerState        `json:"state"`
-	Ports         []GameServerStatusPort `json:"ports"`
-	Address       string                 `json:"address"`
-	NodeName      string                 `json:"nodeName"`
-	ReservedUntil *metav1.Time           `json:"reservedUntil"`
+	State         GameServerState        `json:"state" protobuf:"bytes,1,opt,name=state,casttype=GameServerState"`
+	Ports         []GameServerStatusPort `json:"ports" protobuf:"bytes,2,rep,name=ports"`
+	Address       string                 `json:"address" protobuf:"bytes,3,opt,name=address"`
+	NodeName      string                 `json:"nodeName" protobuf:"bytes,4,opt,name=nodeName"`
+	ReservedUntil *metav1.Time           `json:"reservedUntil" protobuf:"bytes,5,opt,name=reservedUntil"`
 	// [Stage:Alpha]
 	// [FeatureFlag:PlayerTracking]
 	// +optional
-	Players *PlayerStatus `json:"players"`
+	Players *PlayerStatus `json:"players" protobuf:"bytes,6,opt,name=players"`
 	// (Alpha, CountsAndLists feature flag) Counters and Lists provides the configuration for generic tracking features.
 	// +optional
-	Counters map[string]CounterStatus `json:"counters,omitempty"`
+	Counters map[string]CounterStatus `json:"counters,omitempty" protobuf:"bytes,7,rep,name=counters"`
 	// +optional
-	Lists map[string]ListStatus `json:"lists,omitempty"`
+	Lists map[string]ListStatus `json:"lists,omitempty" protobuf:"bytes,8,rep,name=lists"`
 	// Eviction specifies the eviction tolerance of the GameServer.
 	// +optional
-	Eviction *Eviction `json:"eviction,omitempty"`
+	Eviction *Eviction `json:"eviction,omitempty" protobuf:"bytes,9,opt,name=eviction"`
 	// immutableReplicas is present in gameservers.agones.dev but omitted here (it's always 1).
 }
 
 // GameServerStatusPort shows the port that was allocated to a
 // GameServer.
 type GameServerStatusPort struct {
-	Name string `json:"name,omitempty"`
-	Port int32  `json:"port"`
+	Name string `json:"name,omitempty" protobuf:"bytes,1,opt,name=name"`
+	Port int32  `json:"port" protobuf:"varint,2,opt,name=port"`
 }
 
 // PlayerStatus stores the current player capacity values
 type PlayerStatus struct {
-	Count    int64    `json:"count"`
-	Capacity int64    `json:"capacity"`
-	IDs      []string `json:"ids"`
+	Count    int64    `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64    `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
+	IDs      []string `json:"ids" protobuf:"bytes,3,rep,name=ids"`
 }
 
 // CounterStatus stores the current counter values
 type CounterStatus struct {
-	Count    int64 `json:"count"`
-	Capacity int64 `json:"capacity"`
+	Count    int64 `json:"count" protobuf:"varint,1,opt,name=count"`
+	Capacity int64 `json:"capacity" protobuf:"varint,2,opt,name=capacity"`
 }
 
 // ListStatus stores the current list values
 type ListStatus struct {
-	Capacity int64    `json:"capacity"`
-	Values   []string `json:"values"`
+	Capacity int64    `json:"capacity" protobuf:"varint,1,opt,name=capacity"`
+	Values   []string `json:"values" protobuf:"bytes,2,rep,name=values"`
 }
 
 // ApplyDefaults applies default values to the GameServer if they are not already populated
