@@ -32,10 +32,10 @@ import (
 // FleetAutoscaler is the data structure for a FleetAutoscaler resource
 type FleetAutoscaler struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Spec   FleetAutoscalerSpec   `json:"spec"`
-	Status FleetAutoscalerStatus `json:"status"`
+	Spec   FleetAutoscalerSpec   `json:"spec" protobuf:"bytes,2,opt,name=spec"`
+	Status FleetAutoscalerStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -43,35 +43,35 @@ type FleetAutoscaler struct {
 // FleetAutoscalerList is a list of Fleet Scaler resources
 type FleetAutoscalerList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
-	Items []FleetAutoscaler `json:"items"`
+	Items []FleetAutoscaler `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
 // FleetAutoscalerSpec is the spec for a Fleet Scaler
 type FleetAutoscalerSpec struct {
-	FleetName string `json:"fleetName"`
+	FleetName string `json:"fleetName" protobuf:"bytes,1,opt,name=fleetName"`
 
 	// Autoscaling policy
-	Policy FleetAutoscalerPolicy `json:"policy"`
+	Policy FleetAutoscalerPolicy `json:"policy" protobuf:"bytes,2,opt,name=policy"`
 	// [Stage:Alpha]
 	// [FeatureFlag:CustomFasSyncInterval]
 	// Sync defines when FleetAutoscalers runs autoscaling
 	// +optional
-	Sync *FleetAutoscalerSync `json:"sync,omitempty"`
+	Sync *FleetAutoscalerSync `json:"sync,omitempty" protobuf:"bytes,3,opt,name=sync"`
 }
 
 // FleetAutoscalerPolicy describes how to scale a fleet
 type FleetAutoscalerPolicy struct {
 	// Type of autoscaling policy.
-	Type FleetAutoscalerPolicyType `json:"type"`
+	Type FleetAutoscalerPolicyType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=FleetAutoscalerPolicyType"`
 
 	// Buffer policy config params. Present only if FleetAutoscalerPolicyType = Buffer.
 	// +optional
-	Buffer *BufferPolicy `json:"buffer,omitempty"`
+	Buffer *BufferPolicy `json:"buffer,omitempty" protobuf:"bytes,2,opt,name=buffer"`
 	// Webhook policy config params. Present only if FleetAutoscalerPolicyType = Webhook.
 	// +optional
-	Webhook *WebhookPolicy `json:"webhook,omitempty"`
+	Webhook *WebhookPolicy `json:"webhook,omitempty" protobuf:"bytes,3,opt,name=webhook"`
 }
 
 // FleetAutoscalerPolicyType is the policy for autoscaling
@@ -81,11 +81,11 @@ type FleetAutoscalerPolicyType string
 // FleetAutoscalerSync describes when to sync a fleet
 type FleetAutoscalerSync struct {
 	// Type of autoscaling sync.
-	Type FleetAutoscalerSyncType `json:"type"`
+	Type FleetAutoscalerSyncType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=FleetAutoscalerSyncType"`
 
 	// FixedInterval config params. Present only if FleetAutoscalerSyncType = FixedInterval.
 	// +optional
-	FixedInterval FixedIntervalSync `json:"fixedInterval"`
+	FixedInterval FixedIntervalSync `json:"fixedInterval" protobuf:"bytes,2,opt,name=fixedInterval"`
 }
 
 // FleetAutoscalerSyncType is the sync strategy for a given Fleet
@@ -108,12 +108,12 @@ const (
 type BufferPolicy struct {
 	// MaxReplicas is the maximum amount of replicas that the fleet may have.
 	// It must be bigger than both MinReplicas and BufferSize
-	MaxReplicas int32 `json:"maxReplicas"`
+	MaxReplicas int32 `json:"maxReplicas" protobuf:"varint,1,opt,name=maxReplicas"`
 
 	// MinReplicas is the minimum amount of replicas that the fleet must have
 	// If zero, it is ignored.
 	// If non zero, it must be smaller than MaxReplicas and bigger than BufferSize
-	MinReplicas int32 `json:"minReplicas"`
+	MinReplicas int32 `json:"minReplicas" protobuf:"varint,2,opt,name=minReplicas"`
 
 	// BufferSize defines how many replicas the autoscaler tries to have ready all the time
 	// Value can be an absolute number (ex: 5) or a percentage of desired gs instances (ex: 15%)
@@ -125,7 +125,7 @@ type BufferPolicy struct {
 	// Note: by "ready" we understand in this case "non-allocated"; this is done to ensure robustness
 	//       and computation stability in different edge case (fleet just created, not enough
 	//       capacity in the cluster etc)
-	BufferSize intstr.IntOrString `json:"bufferSize"`
+	BufferSize intstr.IntOrString `json:"bufferSize" protobuf:"bytes,3,opt,name=bufferSize"`
 }
 
 // WebhookPolicy controls the desired behavior of the webhook policy.
@@ -136,29 +136,29 @@ type WebhookPolicy admregv1.WebhookClientConfig
 // FixedIntervalSync controls the desired behavior of the fixed interval based sync.
 type FixedIntervalSync struct {
 	// Seconds defines how often we run fleet autoscaling in seconds
-	Seconds int32 `json:"seconds"`
+	Seconds int32 `json:"seconds" protobuf:"varint,1,opt,name=seconds"`
 }
 
 // FleetAutoscalerStatus defines the current status of a FleetAutoscaler
 type FleetAutoscalerStatus struct {
 	// CurrentReplicas is the current number of gameserver replicas
 	// of the fleet managed by this autoscaler, as last seen by the autoscaler
-	CurrentReplicas int32 `json:"currentReplicas"`
+	CurrentReplicas int32 `json:"currentReplicas" protobuf:"varint,1,opt,name=currentReplicas"`
 
 	// DesiredReplicas is the desired number of gameserver replicas
 	// of the fleet managed by this autoscaler, as last calculated by the autoscaler
-	DesiredReplicas int32 `json:"desiredReplicas"`
+	DesiredReplicas int32 `json:"desiredReplicas" protobuf:"varint,2,opt,name=desiredReplicas"`
 
 	// lastScaleTime is the last time the FleetAutoscaler scaled the attached fleet,
 	// +optional
-	LastScaleTime *metav1.Time `json:"lastScaleTime"`
+	LastScaleTime *metav1.Time `json:"lastScaleTime" protobuf:"bytes,3,opt,name=lastScaleTime"`
 
 	// AbleToScale indicates that we can access the target fleet
-	AbleToScale bool `json:"ableToScale"`
+	AbleToScale bool `json:"ableToScale" protobuf:"varint,4,opt,name=ableToScale"`
 
 	// ScalingLimited indicates that the calculated scale would be above or below the range
 	// defined by MinReplicas and MaxReplicas, and has thus been capped.
-	ScalingLimited bool `json:"scalingLimited"`
+	ScalingLimited bool `json:"scalingLimited" protobuf:"varint,5,opt,name=scalingLimited"`
 }
 
 // FleetAutoscaleRequest defines the request to webhook autoscaler endpoint
@@ -167,31 +167,31 @@ type FleetAutoscaleRequest struct {
 	// otherwise identical (parallel requests, requests when earlier requests did not modify etc)
 	// The UID is meant to track the round trip (request/response) between the Autoscaler and the WebHook, not the user request.
 	// It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
-	UID types.UID `json:"uid"`
+	UID types.UID `json:"uid" protobuf:"bytes,1,opt,name=uid,casttype=k8s.io/apimachinery/pkg/types.UID"`
 	// Name is the name of the Fleet being scaled
-	Name string `json:"name"`
+	Name string `json:"name" protobuf:"bytes,2,opt,name=name"`
 	// Namespace is the namespace associated with the request (if any).
-	Namespace string `json:"namespace"`
+	Namespace string `json:"namespace" protobuf:"bytes,3,opt,name=namespace"`
 	// The Fleet's status values
-	Status agonesv1.FleetStatus `json:"status"`
+	Status agonesv1.FleetStatus `json:"status" protobuf:"bytes,4,opt,name=status"`
 }
 
 // FleetAutoscaleResponse defines the response of webhook autoscaler endpoint
 type FleetAutoscaleResponse struct {
 	// UID is an identifier for the individual request/response.
 	// This should be copied over from the corresponding FleetAutoscaleRequest.
-	UID types.UID `json:"uid"`
+	UID types.UID `json:"uid" protobuf:"bytes,1,opt,name=uid,casttype=k8s.io/apimachinery/pkg/types.UID"`
 	// Set to false if no scaling should occur to the Fleet
-	Scale bool `json:"scale"`
+	Scale bool `json:"scale" protobuf:"varint,2,opt,name=scale"`
 	// The targeted replica count
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" protobuf:"varint,3,opt,name=replicas"`
 }
 
 // FleetAutoscaleReview is passed to the webhook with a populated Request value,
 // and then returned with a populated Response.
 type FleetAutoscaleReview struct {
-	Request  *FleetAutoscaleRequest  `json:"request"`
-	Response *FleetAutoscaleResponse `json:"response"`
+	Request  *FleetAutoscaleRequest  `json:"request" protobuf:"bytes,1,opt,name=request"`
+	Response *FleetAutoscaleResponse `json:"response" protobuf:"bytes,2,opt,name=response"`
 }
 
 // Validate validates the FleetAutoscaler scaling settings

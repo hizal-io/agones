@@ -20,55 +20,71 @@ syntax = "proto2";
 
 package agones.dev.agones.pkg.apis.autoscaling.v1;
 
-import "agones.dev/agones/pkg/apis/agones/v1/generated.proto";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
 import "k8s.io/apimachinery/pkg/util/intstr/generated.proto";
 
 // Package-wide variables from generator "generated".
-option (gogoproto.marshaler_all) = true;
-option (gogoproto.stable_marshaler_all) = true;
-option (gogoproto.sizer_all) = true;
-option (gogoproto.goproto_stringer_all) = false;
-option (gogoproto.stringer_all) = true;
-option (gogoproto.unmarshaler_all) = true;
-option (gogoproto.goproto_unrecognized_all) = false;
-option (gogoproto.goproto_enum_prefix_all) = false;
-option (gogoproto.goproto_getters_all) = false;
 option go_package = "agones.dev/agones/pkg/apis/autoscaling/v1";
 
 message ServiceReference {
   // `namespace` is the namespace of the service.
   // Required
-  optional string namespace = 1 [(gogoproto.customname) = "Namespace", (gogoproto.nullable) = false];
+  optional string namespace = 1;
 
   // `name` is the name of the service.
   // Required
-  optional string name = 2 [(gogoproto.customname) = "Name", (gogoproto.nullable) = false];
+  optional string name = 2;
 
   // `path` is an optional URL path which will be sent in any request to
   // this service.
   // +optional
-  optional string path = 3 [(gogoproto.customname) = "Path"];
+  optional string path = 3;
 
   // If specified, the port on the service that hosting webhook.
   // Default to 443 for backward compatibility.
   // `port` should be a valid port number (1-65535, inclusive).
   // +optional
-  optional int32 port = 4 [(gogoproto.customname) = "Port"];
+  optional int32 port = 4;
+}
+
+message AggregatedPlayerStatus {
+  optional int64 count = 1;
+
+  optional int64 capacity = 2;
+}
+
+message FleetStatus {
+  // Replicas the total number of current GameServer replicas
+  optional int32 replicas = 1;
+
+  // ReadyReplicas are the number of Ready GameServer replicas
+  optional int32 readyReplicas = 2;
+
+  // ReservedReplicas are the total number of Reserved GameServer replicas in this fleet.
+  // Reserved instances won't be deleted on scale down, but won't cause an autoscaler to scale up.
+  optional int32 reservedReplicas = 3;
+
+  // AllocatedReplicas are the number of Allocated GameServer replicas
+  optional int32 allocatedReplicas = 4;
+
+  // [Stage:Alpha]
+  // [FeatureFlag:PlayerTracking]
+  // Players are the current total player capacity and count for this Fleet
+  // +optional
+  optional AggregatedPlayerStatus players = 5;
 }
 
 // BufferPolicy controls the desired behavior of the buffer policy.
 message BufferPolicy {
   // MaxReplicas is the maximum amount of replicas that the fleet may have.
   // It must be bigger than both MinReplicas and BufferSize
-  optional int32 maxReplicas = 1 [(gogoproto.customname) = "MaxReplicas", (gogoproto.nullable) = false];
+  optional int32 maxReplicas = 1;
 
   // MinReplicas is the minimum amount of replicas that the fleet must have
   // If zero, it is ignored.
   // If non zero, it must be smaller than MaxReplicas and bigger than BufferSize
-  optional int32 minReplicas = 2 [(gogoproto.customname) = "MinReplicas", (gogoproto.nullable) = false];
+  optional int32 minReplicas = 2;
 
   // BufferSize defines how many replicas the autoscaler tries to have ready all the time
   // Value can be an absolute number (ex: 5) or a percentage of desired gs instances (ex: 15%)
@@ -80,13 +96,13 @@ message BufferPolicy {
   // Note: by "ready" we understand in this case "non-allocated"; this is done to ensure robustness
   //       and computation stability in different edge case (fleet just created, not enough
   //       capacity in the cluster etc)
-  optional k8s.io.apimachinery.pkg.util.intstr.IntOrString bufferSize = 3 [(gogoproto.customname) = "BufferSize", (gogoproto.nullable) = false];
+  optional k8s.io.apimachinery.pkg.util.intstr.IntOrString bufferSize = 3;
 }
 
 // FixedIntervalSync controls the desired behavior of the fixed interval based sync.
 message FixedIntervalSync {
   // Seconds defines how often we run fleet autoscaling in seconds
-  optional int32 seconds = 1 [(gogoproto.customname) = "Seconds", (gogoproto.nullable) = false];
+  optional int32 seconds = 1;
 }
 
 // FleetAutoscaleRequest defines the request to webhook autoscaler endpoint
@@ -95,113 +111,113 @@ message FleetAutoscaleRequest {
   // otherwise identical (parallel requests, requests when earlier requests did not modify etc)
   // The UID is meant to track the round trip (request/response) between the Autoscaler and the WebHook, not the user request.
   // It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
-  optional string uid = 1 [(gogoproto.casttype) = "k8s.io/apimachinery/pkg/types.UID", (gogoproto.customname) = "UID", (gogoproto.nullable) = false];
+  optional string uid = 1;
 
   // Name is the name of the Fleet being scaled
-  optional string name = 2 [(gogoproto.customname) = "Name", (gogoproto.nullable) = false];
+  optional string name = 2;
 
   // Namespace is the namespace associated with the request (if any).
-  optional string namespace = 3 [(gogoproto.customname) = "Namespace", (gogoproto.nullable) = false];
+  optional string namespace = 3;
 
   // The Fleet's status values
-  optional agones.dev.agones.pkg.apis.agones.v1.FleetStatus status = 4 [(gogoproto.customname) = "Status", (gogoproto.nullable) = false];
+  optional FleetStatus status = 4;
 }
 
 // FleetAutoscaleResponse defines the response of webhook autoscaler endpoint
 message FleetAutoscaleResponse {
   // UID is an identifier for the individual request/response.
   // This should be copied over from the corresponding FleetAutoscaleRequest.
-  optional string uid = 1 [(gogoproto.casttype) = "k8s.io/apimachinery/pkg/types.UID", (gogoproto.customname) = "UID", (gogoproto.nullable) = false];
+  optional string uid = 1;
 
   // Set to false if no scaling should occur to the Fleet
-  optional bool scale = 2 [(gogoproto.customname) = "Scale", (gogoproto.nullable) = false];
+  optional bool scale = 2;
 
   // The targeted replica count
-  optional int32 replicas = 3 [(gogoproto.customname) = "Replicas", (gogoproto.nullable) = false];
+  optional int32 replicas = 3;
 }
 
 // FleetAutoscaleReview is passed to the webhook with a populated Request value,
 // and then returned with a populated Response.
 message FleetAutoscaleReview {
-  optional FleetAutoscaleRequest request = 1 [(gogoproto.customname) = "Request"];
+  optional FleetAutoscaleRequest request = 1;
 
-  optional FleetAutoscaleResponse response = 2 [(gogoproto.customname) = "Response"];
+  optional FleetAutoscaleResponse response = 2;
 }
 
 // FleetAutoscaler is the data structure for a FleetAutoscaler resource
 message FleetAutoscaler {
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1 [(gogoproto.customname) = "ObjectMeta", (gogoproto.nullable) = false];
+  optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
-  optional FleetAutoscalerSpec spec = 2 [(gogoproto.customname) = "Spec", (gogoproto.nullable) = false];
+  optional FleetAutoscalerSpec spec = 2;
 
-  optional FleetAutoscalerStatus status = 3 [(gogoproto.customname) = "Status", (gogoproto.nullable) = false];
+  optional FleetAutoscalerStatus status = 3;
 }
 
 // FleetAutoscalerList is a list of Fleet Scaler resources
 message FleetAutoscalerList {
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1 [(gogoproto.customname) = "ListMeta", (gogoproto.nullable) = false];
+  optional k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
 
-  repeated FleetAutoscaler items = 2 [(gogoproto.customname) = "Items", (gogoproto.nullable) = false];
+  repeated FleetAutoscaler items = 2;
 }
 
 // FleetAutoscalerPolicy describes how to scale a fleet
 message FleetAutoscalerPolicy {
   // Type of autoscaling policy.
-  optional string type = 1 [(gogoproto.casttype) = "FleetAutoscalerPolicyType", (gogoproto.customname) = "Type", (gogoproto.nullable) = false];
+  optional string type = 1;
 
   // Buffer policy config params. Present only if FleetAutoscalerPolicyType = Buffer.
   // +optional
-  optional BufferPolicy buffer = 2 [(gogoproto.customname) = "Buffer"];
+  optional BufferPolicy buffer = 2;
 
   // Webhook policy config params. Present only if FleetAutoscalerPolicyType = Webhook.
   // +optional
-  optional WebhookPolicy webhook = 3 [(gogoproto.customname) = "Webhook"];
+  optional WebhookPolicy webhook = 3;
 }
 
 // FleetAutoscalerSpec is the spec for a Fleet Scaler
 message FleetAutoscalerSpec {
-  optional string fleetName = 1 [(gogoproto.customname) = "FleetName", (gogoproto.nullable) = false];
+  optional string fleetName = 1;
 
   // Autoscaling policy
-  optional FleetAutoscalerPolicy policy = 2 [(gogoproto.customname) = "Policy", (gogoproto.nullable) = false];
+  optional FleetAutoscalerPolicy policy = 2;
 
   // [Stage:Alpha]
   // [FeatureFlag:CustomFasSyncInterval]
   // Sync defines when FleetAutoscalers runs autoscaling
   // +optional
-  optional FleetAutoscalerSync sync = 3 [(gogoproto.customname) = "Sync"];
+  optional FleetAutoscalerSync sync = 3;
 }
 
 // FleetAutoscalerStatus defines the current status of a FleetAutoscaler
 message FleetAutoscalerStatus {
   // CurrentReplicas is the current number of gameserver replicas
   // of the fleet managed by this autoscaler, as last seen by the autoscaler
-  optional int32 currentReplicas = 1 [(gogoproto.customname) = "CurrentReplicas", (gogoproto.nullable) = false];
+  optional int32 currentReplicas = 1;
 
   // DesiredReplicas is the desired number of gameserver replicas
   // of the fleet managed by this autoscaler, as last calculated by the autoscaler
-  optional int32 desiredReplicas = 2 [(gogoproto.customname) = "DesiredReplicas", (gogoproto.nullable) = false];
+  optional int32 desiredReplicas = 2;
 
   // lastScaleTime is the last time the FleetAutoscaler scaled the attached fleet,
   // +optional
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastScaleTime = 3 [(gogoproto.customname) = "LastScaleTime"];
+  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastScaleTime = 3;
 
   // AbleToScale indicates that we can access the target fleet
-  optional bool ableToScale = 4 [(gogoproto.customname) = "AbleToScale", (gogoproto.nullable) = false];
+  optional bool ableToScale = 4;
 
   // ScalingLimited indicates that the calculated scale would be above or below the range
   // defined by MinReplicas and MaxReplicas, and has thus been capped.
-  optional bool scalingLimited = 5 [(gogoproto.customname) = "ScalingLimited", (gogoproto.nullable) = false];
+  optional bool scalingLimited = 5;
 }
 
 // FleetAutoscalerSync describes when to sync a fleet
 message FleetAutoscalerSync {
   // Type of autoscaling sync.
-  optional string type = 1 [(gogoproto.casttype) = "FleetAutoscalerSyncType", (gogoproto.customname) = "Type", (gogoproto.nullable) = false];
+  optional string type = 1;
 
   // FixedInterval config params. Present only if FleetAutoscalerSyncType = FixedInterval.
   // +optional
-  optional FixedIntervalSync fixedInterval = 2 [(gogoproto.customname) = "FixedInterval", (gogoproto.nullable) = false];
+  optional FixedIntervalSync fixedInterval = 2;
 }
 
 // WebhookPolicy controls the desired behavior of the webhook policy.
@@ -235,7 +251,7 @@ message WebhookPolicy {
   // allowed, either.
   //
   // +optional
-  optional string url = 3 [(gogoproto.customname) = "URL"];
+  optional string url = 3;
 
   // `service` is a reference to the service for this webhook. Either
   // `service` or `url` must be specified.
@@ -243,11 +259,11 @@ message WebhookPolicy {
   // If the webhook is running within the cluster, then you should use `service`.
   //
   // +optional
-  optional ServiceReference service = 1 [(gogoproto.customname) = "Service"];
+  optional ServiceReference service = 1;
 
   // `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
   // If unspecified, system trust roots on the apiserver are used.
   // +optional
-  optional bytes caBundle = 2 [(gogoproto.customname) = "CABundle"];
+  optional bytes caBundle = 2;
 }
 
