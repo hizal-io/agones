@@ -11,7 +11,7 @@ go install k8s.io/code-generator/cmd/go-to-protobuf@v0.24.1
 
 $GOPATH/bin/go-to-protobuf \
   		--go-header-file=build/boilerplate.go.txt \
-  		--packages=agones.dev/agones/pkg/apis/agones/v1 \
+  		--packages=agones.dev/agones/pkg/apis/agones/v1,agones.dev/agones/pkg/apis/autoscaling/v1 \
   		--apimachinery-packages=-k8s.io/apimachinery/pkg/util/intstr,+k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/apimachinery/pkg/runtime/schema \
   		--proto-import=${GOPATH}/src/agones.dev/agones/vendor \
   		--proto-import=${GOPATH}/pkg/mod
