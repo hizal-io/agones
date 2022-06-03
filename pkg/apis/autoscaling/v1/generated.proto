@@ -20,60 +20,15 @@ syntax = "proto2";
 
 package agones.dev.agones.pkg.apis.autoscaling.v1;
 
+import "agones.dev/agones/pkg/apis/agones/v1/generated.proto";
+import "k8s.io/api/admissionregistration/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
+import "k8s.io/apimachinery/pkg/runtime/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
 import "k8s.io/apimachinery/pkg/util/intstr/generated.proto";
 
 // Package-wide variables from generator "generated".
 option go_package = "agones.dev/agones/pkg/apis/autoscaling/v1";
-
-message ServiceReference {
-  // `namespace` is the namespace of the service.
-  // Required
-  optional string namespace = 1;
-
-  // `name` is the name of the service.
-  // Required
-  optional string name = 2;
-
-  // `path` is an optional URL path which will be sent in any request to
-  // this service.
-  // +optional
-  optional string path = 3;
-
-  // If specified, the port on the service that hosting webhook.
-  // Default to 443 for backward compatibility.
-  // `port` should be a valid port number (1-65535, inclusive).
-  // +optional
-  optional int32 port = 4;
-}
-
-message AggregatedPlayerStatus {
-  optional int64 count = 1;
-
-  optional int64 capacity = 2;
-}
-
-message FleetStatus {
-  // Replicas the total number of current GameServer replicas
-  optional int32 replicas = 1;
-
-  // ReadyReplicas are the number of Ready GameServer replicas
-  optional int32 readyReplicas = 2;
-
-  // ReservedReplicas are the total number of Reserved GameServer replicas in this fleet.
-  // Reserved instances won't be deleted on scale down, but won't cause an autoscaler to scale up.
-  optional int32 reservedReplicas = 3;
-
-  // AllocatedReplicas are the number of Allocated GameServer replicas
-  optional int32 allocatedReplicas = 4;
-
-  // [Stage:Alpha]
-  // [FeatureFlag:PlayerTracking]
-  // Players are the current total player capacity and count for this Fleet
-  // +optional
-  optional AggregatedPlayerStatus players = 5;
-}
 
 // BufferPolicy controls the desired behavior of the buffer policy.
 message BufferPolicy {
@@ -120,7 +75,7 @@ message FleetAutoscaleRequest {
   optional string namespace = 3;
 
   // The Fleet's status values
-  optional FleetStatus status = 4;
+  optional agones.v1.FleetStatus status = 4;
 }
 
 // FleetAutoscaleResponse defines the response of webhook autoscaler endpoint
@@ -259,7 +214,7 @@ message WebhookPolicy {
   // If the webhook is running within the cluster, then you should use `service`.
   //
   // +optional
-  optional ServiceReference service = 1;
+  optional k8s.io.api.admissionregistration.v1.ServiceReference service = 1;
 
   // `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
   // If unspecified, system trust roots on the apiserver are used.
